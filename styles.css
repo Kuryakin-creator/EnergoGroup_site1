@@ -392,16 +392,16 @@ em {
 }
 
 .site-scrollbar i {
-    --scroll-thumb-rotation: 78deg;
+    --scroll-thumb-rotation: 6deg;
     position: absolute;
     top: 0;
     right: 0;
-    width: 16px;
+    width: 4px;
     min-height: 55px;
     border: 0;
     background: #fff;
     filter: drop-shadow(0 0 2px rgba(7, 24, 54, .72));
-    border-radius: 1px;
+    border-radius: 0;
     pointer-events: auto;
     cursor: grab;
     touch-action: none;
@@ -409,7 +409,7 @@ em {
     transform-origin: right center;
     transform-style: preserve-3d;
     backface-visibility: visible;
-    transition: --scroll-thumb-rotation .46s cubic-bezier(.22,1,.36,1), border-radius .46s var(--ease), filter .46s var(--ease);
+    transition: width .46s cubic-bezier(.22,1,.36,1), --scroll-thumb-rotation .46s cubic-bezier(.22,1,.36,1), border-radius .46s var(--ease), filter .46s var(--ease);
     will-change: transform;
 }
 
@@ -417,7 +417,8 @@ em {
 .site-scrollbar i.is-dragging,
 .site-scrollbar:focus-visible i {
     --scroll-thumb-rotation: 0deg;
-    border-radius: 2px;
+    width: 16px;
+    border-radius: 999px;
     filter: drop-shadow(-3px 0 6px rgba(7,24,54,.24));
 }
 
