@@ -383,6 +383,10 @@ function updateScrollUI() {
   header.classList.toggle('is-scrolled', isPostHero);
   header.classList.toggle('is-post-hero', isPostHero);
   header.classList.remove('is-hidden');
+  header.classList.toggle(
+    'is-mobile-collapsed',
+    window.innerWidth < 1200 && current > 24 && !menu.classList.contains('is-open')
+  );
   if (!isPostHero && menu.classList.contains('is-open')) closeMenu();
   updateScrollIndicators(current);
 
@@ -563,9 +567,11 @@ function closeMenu() {
   menuToggle.setAttribute('aria-expanded', 'false');
   menuToggle.setAttribute('aria-label', 'Открыть меню');
   document.body.classList.remove('menu-open');
+  header.classList.toggle('is-mobile-collapsed', window.innerWidth < 1200 && window.scrollY > 24);
 }
 
 function openMenu() {
+  header.classList.remove('is-mobile-collapsed');
   menu.classList.add('is-open');
   menu.setAttribute('aria-hidden', 'false');
   menuToggle.setAttribute('aria-expanded', 'true');

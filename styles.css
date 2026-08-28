@@ -5581,7 +5581,7 @@ body.partners-directory-open {
     .about-story .mission {
         height: max(760px, 88svh);
         min-height: 0;
-        background: #f8f9fa;
+        background: #ecebe7 url("assets/images/mission-offwhite-texture.png") center / cover no-repeat;
     }
 
     .about-story .mission-layout {
