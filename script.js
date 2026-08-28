@@ -11,36 +11,40 @@ const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
 const horizontalNumbers = document.querySelector('.horizontal-numbers');
 const horizontalNumbersTrack = document.querySelector('[data-horizontal-numbers-track]');
 const horizontalNumberCards = document.querySelectorAll('.horizontal-numbers .number-card');
+const horizontalNumberPanels = [...document.querySelectorAll('.horizontal-numbers__panel')];
+const horizontalNumbersSwipeNav = document.querySelector('[data-numbers-swipe-nav]');
+const horizontalNumbersSwipeButtons = [...(horizontalNumbersSwipeNav?.querySelectorAll('button') || [])];
 const heroTransitionImage = document.querySelector('.hero-transition-image');
 const aboutStory = document.querySelector('[data-about-story]');
 const mission = document.querySelector('#mission');
 const scrollDriftTargets = [
-  ['#about', '.manifesto-title-line:nth-child(1)', 60, -40],
-  ['#about', '.manifesto-title-line:nth-child(2)', 50, -33],
-  ['#about', '.manifesto-title-line:nth-child(3)', 43, -28],
+  ['#about', '.manifesto-title-line:nth-child(1)', 60, -40, 1.15],
+  ['#about', '.manifesto-title-line:nth-child(2)', 50, -33, 1.15],
+  ['#about', '.manifesto-title-line:nth-child(3)', 43, -28, 1.15],
   ['#about', '.manifesto-copy', 20, -14],
   ['#about', '.manifesto-principles', 14, -10],
-  ['#mission', '.mission-heading .scroll-heading-line:nth-child(1)', 22, -14],
-  ['#mission', '.mission-heading .scroll-heading-line:nth-child(2)', 22, -14],
-  ['#mission', '.mission-heading .scroll-heading-line:nth-child(3)', 22, -14],
-  ['#mission', '.mission-heading .scroll-heading-line:nth-child(4)', 22, -14],
+  ['#mission', '.mission-heading .scroll-heading-line:nth-child(1)', 22, -14, 1.15],
+  ['#mission', '.mission-heading .scroll-heading-line:nth-child(2)', 22, -14, 1.15],
+  ['#mission', '.mission-heading .scroll-heading-line:nth-child(3)', 22, -14, 1.15],
+  ['#mission', '.mission-heading .scroll-heading-line:nth-child(4)', 22, -14, 1.15],
   ['#mission', '#mission .mission-heading .kicker', 24, -18],
   ['#mission', '.mission-image', 30, -24],
   ['#mission', '.mission-text', 19, -14],
-  ['.horizontal-numbers', '#numbers-title .scroll-heading-line:nth-child(1)', 58, -37],
-  ['.horizontal-numbers', '#numbers-title .scroll-heading-line:nth-child(2)', 47, -30],
-  ['.partners', '.partners-title .scroll-heading-line:nth-child(1)', 58, -36],
-  ['.partners', '.partners-title .scroll-heading-line:nth-child(2)', 47, -29],
+  ['.horizontal-numbers', '#numbers-title .scroll-heading-line:nth-child(1)', 58, -37, .7],
+  ['.horizontal-numbers', '#numbers-title .scroll-heading-line:nth-child(2)', 47, -30, .7],
+  ['.partners', '.partners-title .scroll-heading-line:nth-child(1)', 58, -36, .49],
+  ['.partners', '.partners-title .scroll-heading-line:nth-child(2)', 47, -29, .49],
   ['.partners', '.partners-title .kicker', 17, -11],
-  ['#contacts', '#contacts .scroll-heading-line:nth-child(1)', 24, -16],
-  ['#contacts', '#contacts .scroll-heading-line:nth-child(2)', 24, -16],
-  ['#contacts', '#contacts .scroll-heading-line:nth-child(3)', 24, -16],
+  ['#contacts', '#contacts .scroll-heading-line:nth-child(1)', 24, -16, 1.15],
+  ['#contacts', '#contacts .scroll-heading-line:nth-child(2)', 24, -16, 1.15],
+  ['#contacts', '#contacts .scroll-heading-line:nth-child(3)', 24, -16, 1.15],
   ['#contacts', '#contacts .contact-title .kicker', 14, -9]
-].map(([sectionSelector, targetSelector, from, to]) => ({
+].map(([sectionSelector, targetSelector, from, to, driftFactor = 1]) => ({
   section: document.querySelector(sectionSelector),
   target: document.querySelector(targetSelector),
   from,
-  to
+  to,
+  driftFactor
 }));
 const architecturalSections = [
   { selector: '#services', mode: 'carry', start: .28, span: .44 },
@@ -75,6 +79,37 @@ const smoothScroll = {
   target: window.scrollY,
   frame: null
 };
+
+if (horizontalNumbersTrack && horizontalNumbersSwipeButtons.length) {
+  let numbersSwipeFrame = 0;
+
+  const updateNumbersSwipeNav = () => {
+    numbersSwipeFrame = 0;
+    const panelWidth = Math.max(horizontalNumbersTrack.clientWidth, 1);
+    const activeIndex = Math.min(Math.round(horizontalNumbersTrack.scrollLeft / panelWidth), horizontalNumberPanels.length - 1);
+    horizontalNumbersSwipeButtons.forEach((button, index) => {
+      button.setAttribute('aria-current', String(index === activeIndex));
+    });
+  };
+
+  horizontalNumbersTrack.addEventListener('scroll', () => {
+    if (numbersSwipeFrame) return;
+    numbersSwipeFrame = requestAnimationFrame(updateNumbersSwipeNav);
+  }, { passive: true });
+
+  horizontalNumbersSwipeButtons.forEach((button, index) => {
+    button.addEventListener('click', () => {
+      if (window.innerWidth >= 768) return;
+      horizontalNumbersTrack.scrollTo({
+        left: horizontalNumbersTrack.clientWidth * index,
+        behavior: reducedMotionQuery.matches ? 'auto' : 'smooth'
+      });
+    });
+  });
+
+  window.addEventListener('resize', updateNumbersSwipeNav, { passive: true });
+  updateNumbersSwipeNav();
+}
 
 function cancelSmoothScroll() {
   if (smoothScroll.frame) cancelAnimationFrame(smoothScroll.frame);
@@ -123,11 +158,11 @@ function updateHeroTransition(currentScroll = window.scrollY) {
   if (!hero || !heroTransitionImage) return;
 
   const rect = hero.getBoundingClientRect();
-  const useExtendedHero = window.innerWidth >= 1024 && !reducedMotionQuery.matches;
+  const useExtendedHero = window.innerWidth >= 1200 && !reducedMotionQuery.matches;
   const scrollDistance = useExtendedHero
     ? Math.max(hero.offsetHeight - window.innerHeight, 1)
     : Math.max(hero.offsetHeight, 1);
-  const usesTriggeredTransition = window.innerWidth >= 1024;
+  const usesTriggeredTransition = window.innerWidth >= 1200;
   const heroProgress = usesTriggeredTransition
     ? heroTransition.progress
     : clamp(-rect.top / scrollDistance);
@@ -168,7 +203,7 @@ function scrollToHeroPosition(top) {
 }
 
 function settleHeroTransitionForScroll(top) {
-  if (!hero || !aboutStory || window.innerWidth < 1024) return;
+  if (!hero || !aboutStory || window.innerWidth < 1200) return;
   if (heroTransition.frame) cancelAnimationFrame(heroTransition.frame);
   heroTransition.frame = null;
   heroTransition.scrollBoost = 0;
@@ -181,7 +216,7 @@ function settleHeroTransitionForScroll(top) {
 }
 
 function settleHeroTransitionForTarget(target) {
-  if (!hero || !aboutStory || !target || window.innerWidth < 1024) return;
+  if (!hero || !aboutStory || !target || window.innerWidth < 1200) return;
   if (heroTransition.frame) cancelAnimationFrame(heroTransition.frame);
   heroTransition.frame = null;
   heroTransition.scrollBoost = 0;
@@ -250,7 +285,7 @@ function startHeroTransition(direction) {
 }
 
 function handleHeroWheel(event) {
-  if (!hero || !aboutStory || window.innerWidth < 1024 || Math.abs(event.deltaY) < heroWheelThreshold) return;
+  if (!hero || !aboutStory || window.innerWidth < 1200 || Math.abs(event.deltaY) < heroWheelThreshold) return;
 
   if (heroTransition.state === 'transitioning-forward' || heroTransition.state === 'transitioning-backward') {
     event.preventDefault();
@@ -282,7 +317,7 @@ function updateScrollDrifts() {
   const motionFactor = window.innerWidth < 768 ? .5 : 1;
   const sectionRects = new Map();
 
-  scrollDriftTargets.forEach(({ section, target, from, to }) => {
+  scrollDriftTargets.forEach(({ section, target, from, to, driftFactor }) => {
     if (!section || !target) return;
     if (reducedMotionQuery.matches) {
       target.style.removeProperty('--scroll-drift-y');
@@ -293,7 +328,7 @@ function updateScrollDrifts() {
     sectionRects.set(section, rect);
     const localRange = Math.min(rect.height, window.innerHeight * 1.35);
     const progress = clamp((window.innerHeight - rect.top) / (window.innerHeight + localRange));
-    const offset = (from + (to - from) * progress) * motionFactor * 2.75;
+    const offset = (from + (to - from) * progress) * driftFactor * motionFactor * 2.75;
     target.style.setProperty('--scroll-drift-y', `${offset.toFixed(2)}px`);
   });
 }
@@ -335,10 +370,11 @@ function updateScrollUI() {
   progressBar.style.width = `${progress * 100}%`;
   if (scrollThumb) {
     const trackHeight = Math.max(window.innerHeight - 16, 1);
-    const thumbHeight = Math.max(trackHeight * (window.innerHeight / document.documentElement.scrollHeight), 44);
+    const naturalThumbHeight = Math.max(trackHeight * (window.innerHeight / document.documentElement.scrollHeight), 44);
+    const thumbHeight = Math.min(naturalThumbHeight * 1.25, trackHeight);
     const thumbOffset = Math.max(trackHeight - thumbHeight, 0) * progress;
     scrollThumb.style.height = `${thumbHeight}px`;
-    scrollThumb.style.transform = `translate3d(0, ${thumbOffset}px, 0)`;
+    scrollThumb.style.setProperty('--scroll-thumb-y', `${thumbOffset}px`);
     siteScrollbar?.setAttribute('aria-valuenow', String(Math.round(progress * 100)));
   }
 
@@ -347,7 +383,7 @@ function updateScrollUI() {
   updateScrollDrifts();
   updateArchitecturalSections();
 
-  if (horizontalNumbers && horizontalNumbersTrack && !reducedMotionQuery.matches) {
+  if (horizontalNumbers && horizontalNumbersTrack && window.innerWidth >= 1200 && !reducedMotionQuery.matches) {
     const rect = horizontalNumbers.getBoundingClientRect();
     const scrollDistance = horizontalNumbers.offsetHeight - window.innerHeight;
     const traveled = Math.min(Math.max(-rect.top, 0), scrollDistance);
@@ -362,12 +398,16 @@ function updateScrollUI() {
       const focus = 1 - distance;
       const easedFocus = focus * focus * (3 - 2 * focus);
       let maximumScale = 1.05;
+      if (card.classList.contains('number-card--employees')) maximumScale = 1.2;
       if (card.classList.contains('number-card--substations')) maximumScale = 1.14;
       if (card.classList.contains('number-card--hdd')) maximumScale = 1.07;
       if (card.classList.contains('number-card--built')) maximumScale = 1.08;
       if (card.classList.contains('number-card--facilities')) maximumScale = 1.18;
       card.style.setProperty('--number-focus-scale', (.94 + easedFocus * (maximumScale - .94)).toFixed(3));
     });
+  } else if (horizontalNumbers && horizontalNumbersTrack) {
+    horizontalNumbersTrack.style.transform = 'none';
+    horizontalNumberCards.forEach(card => card.style.removeProperty('--number-focus-scale'));
   }
 
   parallaxTargets.forEach(element => {
@@ -407,7 +447,7 @@ window.addEventListener('load', () => {
     const hashTarget = window.location.hash
       ? document.getElementById(window.location.hash.slice(1))
       : null;
-    if (window.innerWidth >= 1024 && hashTarget && hashTarget !== hero) {
+    if (window.innerWidth >= 1200 && hashTarget && hashTarget !== hero) {
       settleHeroTransitionForTarget(hashTarget);
       updateScrollUI();
     }
@@ -536,18 +576,18 @@ const scheduleMenuClose = () => {
 
 [menuToggle, menu].forEach(element => {
   element.addEventListener('pointerenter', () => {
-    if (window.innerWidth < 1024 || isScrollbarDragging) return;
+    if (window.innerWidth < 1200 || isScrollbarDragging) return;
     if (menuHoverFrame) cancelAnimationFrame(menuHoverFrame);
     menuHoverFrame = null;
     openMenu();
   });
   element.addEventListener('pointerleave', () => {
-    if (window.innerWidth >= 1024) scheduleMenuClose();
+    if (window.innerWidth >= 1200) scheduleMenuClose();
   });
 });
 
 menuToggle.addEventListener('click', event => {
-  if (window.innerWidth >= 1024 && event.detail > 0) {
+  if (window.innerWidth >= 1200 && event.detail > 0) {
     openMenu();
     return;
   }
@@ -681,7 +721,7 @@ if (competenciesRoot) {
   const competencyDetail = competenciesRoot.querySelector('[data-competency-detail]');
   const competencyMask = competenciesRoot.querySelector('.competency-media-mask');
   const competencyCounter = competenciesRoot.querySelector('[data-competency-counter]');
-  const competencyTabs = [...competenciesRoot.querySelectorAll('[data-competency-tab]')];
+  const competencyLabels = [...competenciesRoot.querySelectorAll('[data-competency-label]')];
   const competencyPrevious = competenciesRoot.querySelector('[data-competency-prev]');
   const competencyNext = competenciesRoot.querySelector('[data-competency-next]');
   const competencyText = [competencyTitle, competencySubtitle, competencyDescription, competencyLink].filter(Boolean);
@@ -720,11 +760,8 @@ if (competenciesRoot) {
     competencyDetail.alt = item.detailAlt;
     competencyDetail.style.objectPosition = item.detailPosition;
     competencyCounter.textContent = item.number;
-    competencyTabs.forEach((tab, tabIndex) => {
-      const isActive = tabIndex === index;
-      tab.setAttribute('aria-current', String(isActive));
-      tab.setAttribute('aria-selected', String(isActive));
-      tab.tabIndex = isActive ? 0 : -1;
+    competencyLabels.forEach((label, labelIndex) => {
+      label.setAttribute('aria-current', String(labelIndex === index));
     });
     activeCompetency = index;
     preloadCompetency(index - 1);
@@ -807,26 +844,35 @@ if (competenciesRoot) {
 
   competencyPrevious?.addEventListener('click', () => switchCompetency(activeCompetency - 1, 'backward'));
   competencyNext?.addEventListener('click', () => switchCompetency(activeCompetency + 1, 'forward'));
-  competencyTabs.forEach((tab, index) => tab.addEventListener('click', () => {
-    switchCompetency(index, index > activeCompetency ? 'forward' : 'backward');
-  }));
+  competencyLabels.forEach((label, index) => {
+    label.addEventListener('click', () => {
+      const direction = index > activeCompetency ? 'forward' : 'backward';
+      switchCompetency(index, direction);
+    });
+  });
   competenciesRoot.addEventListener('keydown', event => {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
     event.preventDefault();
     switchCompetency(activeCompetency + (event.key === 'ArrowRight' ? 1 : -1), event.key === 'ArrowRight' ? 'forward' : 'backward');
   });
   competenciesRoot.addEventListener('pointerdown', event => {
-    if (event.pointerType === 'mouse') return;
+    if (event.pointerType === 'mouse' && window.innerWidth >= 768) return;
     swipeStart = { x: event.clientX, y: event.clientY };
   }, { passive: true });
   competenciesRoot.addEventListener('pointerup', event => {
-    if (!swipeStart || event.pointerType === 'mouse') return;
+    if (!swipeStart || (event.pointerType === 'mouse' && window.innerWidth >= 768)) return;
     const deltaX = event.clientX - swipeStart.x;
     const deltaY = event.clientY - swipeStart.y;
     swipeStart = null;
     if (Math.abs(deltaX) < 48 || Math.abs(deltaX) <= Math.abs(deltaY) * 1.2) return;
     switchCompetency(activeCompetency + (deltaX < 0 ? 1 : -1), deltaX < 0 ? 'forward' : 'backward');
   }, { passive: true });
+  competenciesRoot.addEventListener('pointercancel', () => {
+    swipeStart = null;
+  }, { passive: true });
+  competenciesRoot.addEventListener('dragstart', event => {
+    if (window.innerWidth < 768) event.preventDefault();
+  });
 
   if (reducedMotionQuery.matches) {
     competenciesRoot.classList.add('is-entered');
@@ -1182,7 +1228,49 @@ if (partnersSlider) {
   const partnersPrev = partnersSlider.querySelector('[data-partners-prev]');
   const partnersNext = partnersSlider.querySelector('[data-partners-next]');
   const partnersCounter = partnersSlider.querySelector('[data-partners-counter]');
+  const partnersDirectory = document.querySelector('[data-partners-directory]');
+  const partnersDirectoryOpen = document.querySelector('[data-partners-directory-open]');
+  const partnersDirectoryClose = document.querySelector('[data-partners-directory-close]');
+  const partnersDirectoryGrid = document.querySelector('[data-partners-directory-grid]');
   let partnerIndex = 0;
+  let partnerSwipeStart = null;
+
+  if (partnersDirectoryGrid) {
+    partnerCards.forEach((card, index) => {
+      const image = card.querySelector('img');
+      if (!image) return;
+      const directoryCard = document.createElement('article');
+      directoryCard.className = 'partners-directory__card';
+      const number = document.createElement('small');
+      number.textContent = String(index + 1).padStart(2, '0');
+      const directoryImage = image.cloneNode(true);
+      const name = document.createElement('p');
+      name.textContent = image.alt;
+      directoryCard.append(number, directoryImage, name);
+      partnersDirectoryGrid.append(directoryCard);
+    });
+  }
+
+  const openPartnersDirectory = () => {
+    if (!partnersDirectory?.showModal) return;
+    partnersDirectory.showModal();
+    document.body.classList.add('partners-directory-open');
+  };
+
+  const closePartnersDirectory = () => {
+    if (!partnersDirectory?.open) return;
+    partnersDirectory.close();
+  };
+
+  partnersDirectoryOpen?.addEventListener('click', openPartnersDirectory);
+  partnersDirectoryClose?.addEventListener('click', closePartnersDirectory);
+  partnersDirectory?.addEventListener('click', event => {
+    if (event.target === partnersDirectory) closePartnersDirectory();
+  });
+  partnersDirectory?.addEventListener('close', () => {
+    document.body.classList.remove('partners-directory-open');
+    partnersDirectoryOpen?.focus();
+  });
 
   const getVisiblePartners = () => window.innerWidth < 768 ? 1 : window.innerWidth <= 1100 ? 2 : 3;
 
@@ -1195,7 +1283,8 @@ if (partnersSlider) {
     partnersTrack.style.setProperty('--partners-x', `${-partnerIndex * (cardWidth + gap)}px`);
     partnersPrev.disabled = partnerIndex === 0;
     partnersNext.disabled = partnerIndex === maxIndex;
-    partnersCounter.textContent = `${String(partnerIndex + 1).padStart(2, '0')} / ${String(partnerCards.length).padStart(2, '0')}`;
+    const visibleEndIndex = Math.min(partnerIndex + visiblePartners, partnerCards.length);
+    partnersCounter.textContent = `${String(visibleEndIndex).padStart(2, '0')} / ${String(partnerCards.length).padStart(2, '0')}`;
     partnerCards.forEach((card, index) => {
       card.setAttribute('aria-hidden', index < partnerIndex || index >= partnerIndex + visiblePartners ? 'true' : 'false');
     });
@@ -1219,6 +1308,22 @@ if (partnersSlider) {
       movePartnersSlider(1);
     }
   });
+  partnersSlider.addEventListener('pointerdown', event => {
+    if (window.innerWidth >= 768) return;
+    partnerSwipeStart = { x: event.clientX, y: event.clientY };
+  }, { passive: true });
+  partnersSlider.addEventListener('pointerup', event => {
+    if (!partnerSwipeStart) return;
+    const deltaX = event.clientX - partnerSwipeStart.x;
+    const deltaY = event.clientY - partnerSwipeStart.y;
+    partnerSwipeStart = null;
+    if (Math.abs(deltaX) < 44 || Math.abs(deltaX) <= Math.abs(deltaY) * 1.2) return;
+    movePartnersSlider(deltaX < 0 ? 1 : -1);
+  }, { passive: true });
+  partnersSlider.addEventListener('pointercancel', () => {
+    partnerSwipeStart = null;
+  }, { passive: true });
+  partnersSlider.addEventListener('dragstart', event => event.preventDefault());
 
   if ('ResizeObserver' in window) {
     new ResizeObserver(renderPartnersSlider).observe(partnersViewport);
