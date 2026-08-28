@@ -26,9 +26,9 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
         <link href="css/theme.css" rel="stylesheet" type="text/css"> 
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Manrope:wght@300;400;500;600;700&family=Montserrat:wght@100;200;400;500;600&family=Onest:wght@300;400;500;600;700&family=Russo+One&display=swap" rel="stylesheet"> 
-        <link rel="stylesheet" href="styles.css?v=15">
+        <link rel="stylesheet" href="styles.css?v=18">
         <link rel="stylesheet" href="responsive.css?v=11">
-        <script src="script.js?v=13" defer></script>
+        <script src="script.js?v=15" defer></script>
     </head>     
     <body> 
         <a class="skip-link" href="#main">К содержанию</a> 
@@ -312,32 +312,9 @@
                                 <span data-geography-index></span> 
                                 <h3 data-geography-name></h3> 
                                 <div data-geography-projects></div> 
-                                <button type="button" data-geography-region-open>Все проекты региона ↗</button> 
-                            </aside> 
-                            <aside class="geography-panel" aria-hidden="true" data-geography-panel> 
-                                <header><span>Все проекты</span><button type="button" aria-label="Закрыть список проектов" data-geography-panel-close>×</button></header> 
-                                <div class="geography-panel-scroll"> 
-                                    <section data-panel-region="tver"><h4>Тверская область</h4><p>01&nbsp;&nbsp;ОЭЗ «Эммаус»</p><p>02&nbsp;&nbsp;Западный мост</p></section> 
-                                    <section data-panel-region="moscow"><h4>Московская область</h4><p>01&nbsp;&nbsp;Аструм-Сити</p></section> 
-                                    <section data-panel-region="bryansk"><h4>Брянская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="vladimir"><h4>Владимирская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="volgograd"><h4>Волгоградская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="vologda"><h4>Вологодская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="voronezh"><h4>Воронежская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="leningrad"><h4>Ленинградская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="lipetsk"><h4>Липецкая область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="murmansk"><h4>Мурманская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="nizhny"><h4>Нижегородская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="oryol"><h4>Орловская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="ryazan"><h4>Рязанская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="smolensk"><h4>Смоленская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="tambov"><h4>Тамбовская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="tula"><h4>Тульская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                    <section data-panel-region="yaroslavl"><h4>Ярославская область</h4><p>Регион присутствия ЭнергоГрупп</p></section> 
-                                </div> 
                             </aside> 
                         </div> 
-                        <button class="geography-all" type="button" data-geography-panel-open><span>Проекты по регионам</span></button>
+                        <button class="geography-all" type="button" data-projects-directory-open><span>Все проекты</span></button>
                     </div> 
                 </div> 
             </section>             
@@ -388,6 +365,46 @@
                 </div>                 
             </section>             
         </main>
+        <dialog class="projects-directory" data-projects-directory aria-labelledby="projects-directory-title">
+            <div class="projects-directory__page">
+                <header class="projects-directory__hero">
+                    <img src="assets/images/projects/projects-hero.png" width="1920" height="1080" loading="lazy" decoding="async" alt="Монтаж энергетической инфраструктуры на промышленном объекте">
+                    <div class="projects-directory__shade" aria-hidden="true"></div>
+                    <p>ЭнергоГрупп · выполненные работы</p>
+                    <h2 id="projects-directory-title">Выполненные проекты</h2>
+                    <button class="projects-directory__close" type="button" data-projects-directory-close aria-label="Закрыть список проектов">← <span>Назад</span></button>
+                </header>
+                <div class="projects-directory__content">
+                    <p class="projects-directory__intro">Энергетическая инфраструктура, промышленное строительство и комплексные инженерные работы — от проектирования до ввода в эксплуатацию.</p>
+                    <div class="projects-directory__grid">
+                        <article class="project-directory-card" tabindex="0">
+                            <img src="assets/images/projects/vologda-transformer.jpg" width="380" height="300" loading="lazy" decoding="async" alt="Силовой трансформатор на подстанции в Вологодской области">
+                            <div class="project-directory-card__copy"><span>Вологодская область · 2019</span><h3>Монтаж силового трансформатора ТДН-25000/110 УХЛ1 А</h3><p>ПС 110/10 кВ с питанием по ЛЭП 110 кВ от ПС 220 кВ «РПП-1» для нужд Череповецкого тепличного комплекса «Новый».</p><small>Заказчик: ООО «Череповецкий ТК «Новый»</small></div>
+                        </article>
+                        <article class="project-directory-card" tabindex="0">
+                            <img src="assets/images/projects/west-dvina-transformer.jpg" width="380" height="300" loading="lazy" decoding="async" alt="Трансформатор на подстанции Западная Двина">
+                            <div class="project-directory-card__copy"><span>Тверская область · 2020</span><h3>Ремонт трансформатора ТДТН-40000/110/35/10</h3><p>Комплексный ремонт силового трансформатора на ПС 110 кВ «Западная Двина».</p><small>Заказчик: ПАО «МРСК Центра» — «Тверьэнерго»</small></div>
+                        </article>
+                        <article class="project-directory-card" tabindex="0">
+                            <img src="assets/images/projects/m11-lighting.jpg" width="380" height="300" loading="lazy" decoding="async" alt="Работы по устройству освещения автомобильной дороги М-11">
+                            <div class="project-directory-card__copy"><span>Московская и Тверская области · 2016–2019</span><h3>Освещение скоростной дороги М‑11</h3><p>Установлено 3 218 опор и 6 892 светильника, проложено 1 024,753 км кабельно-проводниковой продукции.</p><small>Заказчик: Государственная компания «Автодор»</small></div>
+                        </article>
+                        <article class="project-directory-card" tabindex="0">
+                            <img src="assets/images/projects/south-substation.jpg" width="380" height="300" loading="lazy" decoding="async" alt="Подстанция Южная после реконструкции">
+                            <div class="project-directory-card__copy"><span>Тверская область · 2015</span><h3>Реконструкция ПС 110/35/10 кВ «Южная»</h3><p>Установлен третий трансформатор ТДТН-40000/110-78 У1 и заменено оборудование ОРУ 110 кВ.</p><small>Для нужд филиала «Тверьэнерго»</small></div>
+                        </article>
+                        <article class="project-directory-card" tabindex="0">
+                            <img src="assets/images/projects/decathlon.jpg" width="380" height="300" loading="lazy" decoding="async" alt="Торговый объект с инженерной инфраструктурой">
+                            <div class="project-directory-card__copy"><span>Коммерческая недвижимость</span><h3>Магазин «Декатлон»</h3><p>Выполненный объект коммерческого строительства из портфолио компании.</p><small>Торговый объект</small></div>
+                        </article>
+                        <article class="project-directory-card" tabindex="0">
+                            <img src="assets/images/projects/freshmarket.jpg" width="380" height="300" loading="lazy" decoding="async" alt="Внутренние инженерные системы промышленного объекта">
+                            <div class="project-directory-card__copy"><span>Московская область · 2013–2014</span><h3>Распределительный центр «ФрешМаркет»</h3><p>Разработка проектных решений, функции технического заказчика, технический и авторский надзор. Общая площадь объекта — 60 000 м².</p><small>Заказчик: ООО «ФрешМаркет»</small></div>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </dialog>
         <dialog class="partners-directory" data-partners-directory aria-labelledby="partners-directory-title">
             <div class="partners-directory__page">
                 <header class="partners-directory__hero">

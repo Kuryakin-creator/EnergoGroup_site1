@@ -933,10 +933,41 @@ if (geography) {
   }
   const geographyProjects = {
     tver: [
-      ['ОЭЗ «Эммаус»', 'Проектирование и строительство'],
-      ['Западный мост', 'Переустройство воздушных линий']
+      {
+        title: 'Западный мост',
+        description: 'Переустройство воздушных линий электропередачи напряжением 0,4–110 кВ при строительстве мостового перехода через Волгу в Твери.'
+      },
+      {
+        title: 'ПС 110 кВ «Западная Двина»',
+        description: 'Ремонт силового трансформатора ТДТН-40000/110/35/10.',
+        meta: 'Заказчик: ПАО «МРСК Центра» — «Тверьэнерго» · 2020'
+      }
     ],
-    moscow: [['Аструм-Сити', '']]
+    moscow: [
+      {
+        title: 'Освещение скоростной дороги М‑11',
+        description: 'Устройство освещения на участках км 58–97 и км 208–258.',
+        meta: 'Заказчик: Государственная компания «Автодор» · 2016–2019'
+      },
+      {
+        title: 'Аструм-Сити',
+        description: 'Объект коммерческой недвижимости класса B/B+ — шестое по высоте здание в Московской области.'
+      }
+    ],
+    vologda: [
+      {
+        title: 'Монтаж трансформатора ТДН-25000/110 УХЛ1 А',
+        description: 'ПС 110/10 кВ с питанием по ЛЭП 110 кВ от ПС 220 кВ «РПП-1» для нужд Череповецкого тепличного комплекса «Новый».',
+        meta: 'Заказчик: ООО «Череповецкий ТК «Новый» · 2019'
+      }
+    ],
+    voronezh: [
+      {
+        title: 'Реконструкция ВЛ 110 кВ «НВАЭС — Лискинская 1, 2»',
+        description: 'Разнос цепей ВЛ 110 кВ в разные анкерные участки в рамках схемы выдачи мощности Нововоронежской АЭС‑2.',
+        meta: 'Заказчик: филиал ПАО «МРСК Центра» — «Воронежэнерго» · 2018'
+      }
+    ]
   };
   let geographyControls = [...geography.querySelectorAll('.geography-point')];
   const geographyMap = geography.querySelector('.geography-map');
@@ -944,10 +975,6 @@ if (geography) {
   const geographyIndex = geography.querySelector('[data-geography-index]');
   const geographyProjectList = geography.querySelector('[data-geography-projects]');
   const geographyPopup = geography.querySelector('[data-geography-popup]');
-  const geographyRegionOpen = geography.querySelector('[data-geography-region-open]');
-  const geographyPanel = geography.querySelector('[data-geography-panel]');
-  const geographyPanelOpen = geography.querySelector('[data-geography-panel-open]');
-  const geographyPanelClose = geography.querySelector('[data-geography-panel-close]');
   let activeRegion = '';
   let visibleRegion = '';
   let geographyCloseTimer = 0;
@@ -1007,16 +1034,21 @@ if (geography) {
       geographyProjectList.append(neutral);
       return;
     }
-    projects.forEach(([title, description], index) => {
+    projects.forEach((project, index) => {
       const row = document.createElement('p');
       const number = document.createElement('b');
       const copy = document.createElement('span');
       number.textContent = String(index + 1).padStart(2, '0');
-      copy.textContent = title;
-      if (description) {
+      copy.textContent = project.title;
+      if (project.description) {
         const detail = document.createElement('small');
-        detail.textContent = description;
+        detail.textContent = project.description;
         copy.append(detail);
+      }
+      if (project.meta) {
+        const meta = document.createElement('em');
+        meta.textContent = project.meta;
+        copy.append(meta);
       }
       row.append(number, copy);
       geographyProjectList.append(row);
@@ -1082,9 +1114,6 @@ if (geography) {
       control.classList.toggle('is-active', isActive);
       control.setAttribute('aria-pressed', String(isActive));
     });
-    geography.querySelectorAll('[data-panel-region]').forEach(group => {
-      group.classList.toggle('is-active', group.dataset.panelRegion === activeRegion);
-    });
     if (activeRegion) showRegion(activeRegion);
     else closeRegion();
   };
@@ -1112,41 +1141,12 @@ if (geography) {
   geographyPopup.addEventListener('pointerenter', () => window.clearTimeout(geographyCloseTimer));
   geographyPopup.addEventListener('pointerleave', scheduleRegionClose);
   geographyMap.addEventListener('click', event => {
-    if (event.target.closest('.geography-point, .geography-region, .geography-panel')) return;
+    if (event.target.closest('.geography-point, .geography-region')) return;
     activeRegion = '';
     closeRegion();
   });
-
-  const closeGeographyPanel = () => {
-    geographyPanel.classList.remove('is-open');
-    geographyPanel.setAttribute('aria-hidden', 'true');
-    geographyPanelOpen.setAttribute('aria-expanded', 'false');
-  };
-
-  const openGeographyPanel = () => {
-    geographyPanel.classList.add('is-open');
-    geographyPanel.setAttribute('aria-hidden', 'false');
-    geographyPanelOpen.setAttribute('aria-expanded', 'true');
-    geography.querySelectorAll('[data-panel-region]').forEach(group => {
-      group.classList.toggle('is-active', group.dataset.panelRegion === activeRegion);
-    });
-    geographyPanelClose.focus();
-  };
-
-  geographyPanelOpen.setAttribute('aria-expanded', 'false');
-  geographyPanelOpen.addEventListener('click', () => {
-    if (geographyPanel.classList.contains('is-open')) closeGeographyPanel();
-    else openGeographyPanel();
-  });
-  geographyPanelClose.addEventListener('click', closeGeographyPanel);
-  geographyRegionOpen.addEventListener('click', openGeographyPanel);
   document.addEventListener('keydown', event => {
     if (event.key !== 'Escape') return;
-    if (geographyPanel.classList.contains('is-open')) {
-      closeGeographyPanel();
-      geographyPanelOpen.focus();
-      return;
-    }
     if (visibleRegion) {
       activeRegion = '';
       closeRegion();
@@ -1233,6 +1233,28 @@ if (geography) {
 
   closeRegion();
 }
+
+const projectsDirectory = document.querySelector('[data-projects-directory]');
+const projectsDirectoryOpen = document.querySelector('[data-projects-directory-open]');
+const projectsDirectoryClose = document.querySelector('[data-projects-directory-close]');
+
+const closeProjectsDirectory = () => {
+  if (projectsDirectory?.open) projectsDirectory.close();
+};
+
+projectsDirectoryOpen?.addEventListener('click', () => {
+  if (!projectsDirectory?.showModal) return;
+  projectsDirectory.showModal();
+  document.body.classList.add('projects-directory-open');
+});
+projectsDirectoryClose?.addEventListener('click', closeProjectsDirectory);
+projectsDirectory?.addEventListener('click', event => {
+  if (event.target === projectsDirectory) closeProjectsDirectory();
+});
+projectsDirectory?.addEventListener('close', () => {
+  document.body.classList.remove('projects-directory-open');
+  projectsDirectoryOpen?.focus();
+});
 
 const partnersSlider = document.querySelector('[data-partners-slider]');
 
