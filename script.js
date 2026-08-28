@@ -629,6 +629,31 @@ document.querySelectorAll('input[type="tel"]').forEach(input => {
 });
 
 document.querySelectorAll('[data-form]').forEach(form => {
+  const captcha = form.querySelector('[data-captcha]');
+  const captchaQuestion = captcha?.querySelector('[data-captcha-question]');
+  const captchaAnswer = captcha?.querySelector('[data-captcha-answer]');
+  const captchaRefresh = captcha?.querySelector('[data-captcha-refresh]');
+  const captchaTrap = captcha?.querySelector('[data-captcha-trap]');
+  let captchaResult = 0;
+
+  const refreshCaptcha = () => {
+    const first = Math.floor(Math.random() * 7) + 2;
+    const second = Math.floor(Math.random() * 7) + 1;
+    captchaResult = first + second;
+    if (captchaQuestion) captchaQuestion.textContent = `${first} + ${second} =`;
+    if (captchaAnswer) {
+      captchaAnswer.value = '';
+      captchaAnswer.classList.remove('is-invalid');
+      captchaAnswer.removeAttribute('aria-invalid');
+    }
+  };
+
+  captchaRefresh?.addEventListener('click', () => {
+    refreshCaptcha();
+    captchaAnswer?.focus();
+  });
+  refreshCaptcha();
+
   form.addEventListener('submit', event => {
     event.preventDefault();
     let valid = true;
@@ -644,14 +669,26 @@ document.querySelectorAll('[data-form]').forEach(form => {
       valid = false;
     }
 
+    const captchaValid = !captchaAnswer || Number(captchaAnswer.value.trim()) === captchaResult;
+    if (captchaAnswer) {
+      captchaAnswer.classList.toggle('is-invalid', !captchaValid);
+      captchaAnswer.setAttribute('aria-invalid', String(!captchaValid));
+      valid = valid && captchaValid;
+    }
+
+    if (captchaTrap?.value) valid = false;
+
     const status = form.querySelector('.form-status');
     if (!valid) {
-      status.textContent = 'Проверьте обязательные поля и согласие.';
+      status.textContent = captchaValid
+        ? 'Проверьте обязательные поля и согласие.'
+        : 'Неверный ответ. Решите проверочный пример.';
       return;
     }
 
     status.textContent = 'Спасибо. Заявка принята — мы скоро свяжемся с вами.';
     form.reset();
+    refreshCaptcha();
   });
 });
 

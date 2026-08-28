@@ -26,9 +26,9 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
         <link href="css/theme.css" rel="stylesheet" type="text/css"> 
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Manrope:wght@300;400;500;600;700&family=Montserrat:wght@100;200;400;500;600&family=Onest:wght@300;400;500;600;700&family=Russo+One&display=swap" rel="stylesheet"> 
-        <link rel="stylesheet" href="styles.css?v=19">
+        <link rel="stylesheet" href="styles.css?v=20">
         <link rel="stylesheet" href="responsive.css?v=11">
-        <script src="script.js?v=15" defer></script>
+        <script src="script.js?v=16" defer></script>
     </head>     
     <body> 
         <a class="skip-link" href="#main">К содержанию</a> 
@@ -450,7 +450,20 @@
                         <label> 
                             <span>Вопрос / комментарий</span> 
                             <textarea name="message" rows="2" placeholder="Коротко расскажите о задаче"></textarea> 
-                        </label>                         
+                        </label>
+                        <fieldset class="human-check" data-captcha>
+                            <legend>Проверка безопасности</legend>
+                            <div class="human-check__row">
+                                <strong data-captcha-question aria-live="polite"></strong>
+                                <label>
+                                    <span>Ответ</span>
+                                    <input type="text" name="captcha" inputmode="numeric" autocomplete="off" required data-captcha-answer aria-label="Ответ на проверочный пример">
+                                </label>
+                                <button type="button" data-captcha-refresh aria-label="Обновить проверочный пример">↻</button>
+                            </div>
+                            <p>Решите простой пример, чтобы подтвердить, что вы не робот.</p>
+                            <label class="human-check__trap" aria-hidden="true">Не заполняйте это поле<input type="text" name="website" tabindex="-1" autocomplete="off" data-captcha-trap></label>
+                        </fieldset>
                         <label class="consent"> 
                             <input type="checkbox" name="consent" required> 
                             <span>Я согласен с <a href="#privacy">политикой конфиденциальности</a></span> 
