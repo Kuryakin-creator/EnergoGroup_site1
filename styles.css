@@ -1408,7 +1408,7 @@ em {
     min-height: 100vh;
     min-height: 100svh;
     padding: 0;
-    background: var(--mission-grey) url("assets/images/mission-section-background.png") center / cover no-repeat;
+    background: #ecebe7 url("assets/images/mission-offwhite-texture.png") center / cover no-repeat;
     color: var(--navy);
 }
 
@@ -4715,7 +4715,7 @@ body.partners-directory-open {
     .about-story .mission {
         min-height: auto;
         padding: 95px 0;
-        background: var(--mission-grey) url("assets/images/mission-section-background.png") center / cover no-repeat;
+        background: #ecebe7 url("assets/images/mission-offwhite-texture.png") center / cover no-repeat;
         color: var(--white);
     }
 
@@ -6191,7 +6191,7 @@ body.partners-directory-open {
 }
 
 .mission {
-    background: linear-gradient(118deg, rgba(241,239,233,.96) 0%, rgba(225,225,219,.91) 100%), url("assets/images/mission-architecture.png") right center / 54% auto no-repeat;
+    background: #ecebe7 url("assets/images/mission-offwhite-texture.png") center / cover no-repeat;
 }
 
 .mission-heading h2 em {

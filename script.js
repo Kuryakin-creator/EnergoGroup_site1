@@ -181,6 +181,21 @@ function updateHeroTransition(currentScroll = window.scrollY) {
   heroTransitionImage.style.setProperty('--hero-image-progress', mediaIsCovered ? '0' : imageProgress.toFixed(4));
 }
 
+function updateScrollIndicators(current = window.scrollY) {
+  const max = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+  const progress = Math.min(Math.max(current / max, 0), 1);
+  progressBar.style.width = `${progress * 100}%`;
+
+  if (!scrollThumb) return;
+  const trackHeight = Math.max(window.innerHeight - 16, 1);
+  const naturalThumbHeight = Math.max(trackHeight * (window.innerHeight / document.documentElement.scrollHeight), 44);
+  const thumbHeight = Math.min(naturalThumbHeight * 1.25, trackHeight);
+  const thumbOffset = Math.max(trackHeight - thumbHeight, 0) * progress;
+  scrollThumb.style.height = `${thumbHeight}px`;
+  scrollThumb.style.setProperty('--scroll-thumb-y', `${thumbOffset}px`);
+  siteScrollbar?.setAttribute('aria-valuenow', String(Math.round(progress * 100)));
+}
+
 function updateIntroSharedMedia() {
   if (!about || !mission || !heroTransitionImage) return;
 
@@ -192,7 +207,8 @@ function updateIntroSharedMedia() {
   const rect = about.getBoundingClientRect();
   const startPosition = window.innerHeight * .8;
   const progress = clamp((startPosition - rect.top) / (startPosition + rect.height));
-  heroTransitionImage.style.setProperty('--intro-media-y', `${(-50 * progress).toFixed(3)}%`);
+  const mediaTravel = window.innerWidth < 768 ? 8 : window.innerWidth < 1200 ? 12 : 50;
+  heroTransitionImage.style.setProperty('--intro-media-y', `${(-mediaTravel * progress).toFixed(3)}%`);
 }
 
 function scrollToHeroPosition(top) {
@@ -273,6 +289,9 @@ function startHeroTransition(direction) {
     const easedProgress = smoothstep(timeProgress);
     heroTransition.progress = startProgress + (endProgress - startProgress) * easedProgress;
     updateHeroTransition(window.scrollY);
+    const heroStart = hero.offsetTop;
+    const virtualScroll = heroStart + (getHeroRestingScroll() - heroStart) * heroTransition.progress;
+    updateScrollIndicators(virtualScroll);
 
     if (timeProgress < 1) {
       heroTransition.frame = requestAnimationFrame(animate);
@@ -359,24 +378,13 @@ function refreshArchitecturalDepths() {
 
 function updateScrollUI() {
   const current = window.scrollY;
-  const max = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
-  const progress = Math.min(current / max, 1);
 
   const isPostHero = current >= getHeroRestingScroll() - 2;
   header.classList.toggle('is-scrolled', isPostHero);
   header.classList.toggle('is-post-hero', isPostHero);
   header.classList.remove('is-hidden');
   if (!isPostHero && menu.classList.contains('is-open')) closeMenu();
-  progressBar.style.width = `${progress * 100}%`;
-  if (scrollThumb) {
-    const trackHeight = Math.max(window.innerHeight - 16, 1);
-    const naturalThumbHeight = Math.max(trackHeight * (window.innerHeight / document.documentElement.scrollHeight), 44);
-    const thumbHeight = Math.min(naturalThumbHeight * 1.25, trackHeight);
-    const thumbOffset = Math.max(trackHeight - thumbHeight, 0) * progress;
-    scrollThumb.style.height = `${thumbHeight}px`;
-    scrollThumb.style.setProperty('--scroll-thumb-y', `${thumbOffset}px`);
-    siteScrollbar?.setAttribute('aria-valuenow', String(Math.round(progress * 100)));
-  }
+  updateScrollIndicators(current);
 
   updateHeroTransition(current);
   updateIntroSharedMedia();
@@ -773,6 +781,13 @@ if (competenciesRoot) {
     return element.animate(keyframes, { easing: 'cubic-bezier(.22,1,.36,1)', fill: 'both', ...options });
   };
 
+  const decodeVisibleCompetencyMedia = () => Promise.allSettled(
+    [competencyMain, competencyDetail]
+      .filter(image => image.offsetParent !== null)
+      .map(image => image.decode?.())
+      .filter(Boolean)
+  );
+
   const switchCompetency = async (nextIndex, direction = 'forward') => {
     const normalizedIndex = (nextIndex + competencies.length) % competencies.length;
     if (competencyAnimating || normalizedIndex === activeCompetency) return;
@@ -784,7 +799,7 @@ if (competenciesRoot) {
       await Promise.all(fadeOut.filter(Boolean).map(animation => animation.finished.catch(() => {})));
       fadeOut.forEach(animation => animation?.cancel());
       renderCompetency(normalizedIndex);
-      await Promise.allSettled([competencyMain.decode?.(), competencyDetail.decode?.()]);
+      await decodeVisibleCompetencyMedia();
       const fadeIn = [competencyMain, competencyDetail].map(element => runAnimation(element, [{ opacity: 0 }, { opacity: 1 }], { duration: 140 }));
       await Promise.all(fadeIn.filter(Boolean).map(animation => animation.finished.catch(() => {})));
       fadeIn.forEach(animation => animation?.cancel());
@@ -814,7 +829,7 @@ if (competenciesRoot) {
 
     await maskIn.finished.catch(() => {});
     renderCompetency(normalizedIndex);
-    await Promise.allSettled([competencyMain.decode?.(), competencyDetail.decode?.()]);
+    await decodeVisibleCompetencyMedia();
     [mainOut, detailOut, numberOut, ...textOut].forEach(animation => animation?.cancel());
     maskIn.cancel();
 
