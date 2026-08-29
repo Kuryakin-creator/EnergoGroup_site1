@@ -1487,7 +1487,7 @@
     }
 
     .about-story .section-mark {
-        top: -16px;
+        top: 0;
     }
 }
 
@@ -1557,7 +1557,7 @@
 @media (min-width: 1200px) {
     .about-story .manifesto .section-mark {
         position: relative;
-        top: -61px;
+        top: 0;
     }
 
     .about-story .mission-layout > .section-mark {
@@ -1646,5 +1646,42 @@
 
     .projects-directory__hero > img {
         transform: scale(1.85);
+    }
+}
+
+/* Компактное стартовое состояние раздела 02 после перехода из навигации. */
+@media (min-width: 1200px) {
+    .about-story .manifesto,
+    .about-story .manifesto-grid {
+        min-height: 100vh;
+        min-height: 100svh;
+    }
+
+    .about-story .manifesto-grid {
+        padding-top: clamp(76px, 10vh, 94px);
+        padding-bottom: clamp(54px, 7vh, 68px);
+    }
+
+    .about-story .manifesto .section-mark {
+        top: clamp(24px, 4vh, 38px);
+    }
+
+    .about-story .manifesto-title {
+        margin-top: clamp(46px, 6vh, 58px);
+        font-size: clamp(78px, 6.2vw, 118px);
+    }
+
+    .about-story .manifesto-copy {
+        margin-top: clamp(24px, 3.5vh, 34px);
+    }
+
+    .about-story .manifesto-principles {
+        margin-top: clamp(42px, 5vh, 56px);
+    }
+}
+
+@media (max-width: 1199px) {
+    .about-story .manifesto .section-mark {
+        top: 14px;
     }
 }

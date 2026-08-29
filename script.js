@@ -480,7 +480,30 @@ document.addEventListener('click', event => {
   settleHeroTransitionForTarget(target);
   anchorNavigationUntil = performance.now() + 1400;
   header.classList.remove('is-hidden');
-  target.scrollIntoView({ behavior: reducedMotionQuery.matches ? 'auto' : 'smooth', block: 'start' });
+  let targetTop = 0;
+  let offsetNode = target;
+  while (offsetNode) {
+    targetTop += offsetNode.offsetTop;
+    offsetNode = offsetNode.offsetParent;
+  }
+  window.scrollTo({
+    top: targetTop,
+    left: 0,
+    behavior: reducedMotionQuery.matches ? 'auto' : 'smooth'
+  });
+  if (!reducedMotionQuery.matches) {
+    let anchorAligned = false;
+    const alignAnchor = () => {
+      if (anchorAligned) return;
+      anchorAligned = true;
+      const visualOffset = target.getBoundingClientRect().top;
+      if (Math.abs(visualOffset) > 1) {
+        window.scrollTo({ top: window.scrollY + visualOffset, left: 0, behavior: 'auto' });
+      }
+    };
+    window.addEventListener('scrollend', alignAnchor, { once: true });
+    window.setTimeout(alignAnchor, 1600);
+  }
   if (window.location.hash !== hash) history.pushState(null, '', hash);
 });
 
